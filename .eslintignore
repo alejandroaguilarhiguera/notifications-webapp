@@ -1,0 +1,5 @@
+node_modules
+**/dist/**
+craco.config.js
+tailwind.config.js
+yarn.lock
