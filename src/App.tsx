@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { Home, History } from '@/pages';
 
 function App() {
@@ -7,11 +8,13 @@ function App() {
     <div className="App flex h-screen flex-col justify-between">
       <BrowserRouter>
         <Routes location={location} key={location.pathname}>
-          <Route index element={<Home />} />
+          <Route index element={<Navigate to="/messages" />} />
+          <Route path="messages" element={<Home />} />
           <Route path="history" element={<History />} />
           <Route path="*" element={<>Not found</>} />
         </Routes>
       </BrowserRouter>
+      <Toaster position="top-right" />
     </div>
   );
 }
