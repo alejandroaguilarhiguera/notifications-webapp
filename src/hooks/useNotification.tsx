@@ -58,7 +58,7 @@ export const useNotification = () => {
       .post<{ message: string; notification: Notification }>('/notifications', {
         category: categorySelected,
         channel: channelSelected,
-        message,
+        message: message.trim(),
         UserId: userIdSelected,
       })
       .then(({ data }) => {

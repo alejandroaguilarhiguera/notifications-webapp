@@ -118,7 +118,7 @@ export const Home = (): JSX.Element => {
                   }
                   disabled={isLoading}
                   value={message}
-                  onChange={(e) => setMessage(e.target.value.trim())}
+                  onChange={(e) => setMessage(e.target.value)}
                   onKeyUpCapture={(e) => {
                     e.preventDefault();
                     e.key === 'Enter' && sendMessage();
