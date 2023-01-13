@@ -1,2 +1,3 @@
 export * from './Notification';
-export * from './Errors';
+export * from './Error';
+export * from './User';

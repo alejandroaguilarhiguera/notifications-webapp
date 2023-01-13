@@ -1,6 +1,6 @@
 import { MdPlayArrow } from 'react-icons/md';
 import { Layout } from '@/components';
-import { useNotification } from '@/hooks';
+import { useNotification, useUser } from '@/hooks';
 
 const activeButtonState = 'bg-blue-400 text-white hover:bg-blue-500';
 const inactiveButtonState = 'text-gray-500 hover:bg-gray-100';
@@ -15,11 +15,13 @@ export const Home = (): JSX.Element => {
     setChannelSelected,
     channelSelected,
     sendMessage,
-    errorMessage,
     message,
     setMessage,
+    userIdSelected,
+    setUserIdSelected,
+    validationErrors,
   } = useNotification();
-
+  const { users } = useUser();
   return (
     <Layout>
       <div>
@@ -64,10 +66,39 @@ export const Home = (): JSX.Element => {
                       (channelSelected === channel ? activeButtonState : inactiveButtonState)
                     }
                   >
-                    {channel}
+                    {channel.replace(/([A-Z])/g, ' $1')}
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div className="mb-6">
+              <div className="mb-2">
+                <label htmlFor="selectUser" className="text-xs font-medium text-gray-400">
+                  Select user
+                </label>
+              </div>
+              <select
+                id="selectUser"
+                className={
+                  'mb-1 block w-full rounded-lg border bg-gray-50 py-3 px-2 text-sm text-gray-600 text-gray-900 outline-none hover:outline-none focus:border-blue-500 focus:outline-none focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500 ' +
+                  (validationErrors.find(({ field }) => field === 'userIdSelected')?.message
+                    ? 'border-red-500'
+                    : '')
+                }
+                onChange={(e) => setUserIdSelected(Number(e.target?.value))}
+                value={userIdSelected}
+              >
+                <option selected>Choose a user</option>
+                {users?.map((user) => (
+                  <option key={user.id} value={user.id}>
+                    {user.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-red-500">
+                {validationErrors.find(({ field }) => field === 'userIdSelected')?.message}
+              </p>
             </div>
 
             <div className="my-4">
@@ -81,7 +112,9 @@ export const Home = (): JSX.Element => {
                   id="txtMessage"
                   className={
                     'w-full rounded-lg border border-gray-300 bg-gray-50 py-1 px-2 text-gray-600 outline-none hover:outline-none focus:outline-none ' +
-                    (errorMessage ? 'border-red-500' : '')
+                    (validationErrors.find(({ field }) => field === 'message')?.message
+                      ? 'border-red-500'
+                      : '')
                   }
                   disabled={isLoading}
                   value={message}
@@ -99,7 +132,9 @@ export const Home = (): JSX.Element => {
                   <MdPlayArrow className="text-gray-500" />
                 </button>
               </div>
-              <p className="text-red-500">{errorMessage}</p>
+              <p className="text-red-500">
+                {validationErrors.find(({ field }) => field === 'message')?.message}
+              </p>
             </div>
           </div>
         </div>

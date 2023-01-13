@@ -14,6 +14,7 @@ export interface Notification {
   category: Category;
   channel: Channel;
   message: string;
+  UserId: number;
   createdAt: string;
 }
 
