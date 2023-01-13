@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import useSWR from 'swr';
 import { MessageAlert } from '@/components';
-import { Notification, ResponseValidationError } from '@/types';
+import { Notification, ResponseValidationError, ValidationError } from '@/types';
 
 const categories = ['sports', 'finance', 'movies'];
 const channels = ['sms', 'email', 'pushNotification'];
@@ -17,25 +17,35 @@ export const useNotification = () => {
   const [defaultChannel] = channels;
   const [categorySelected, setCategorySelected] = useState(defaultCategory);
   const [channelSelected, setChannelSelected] = useState(defaultChannel);
+  const [userIdSelected, setUserIdSelected] = useState<number>();
   const [message, setMessage] = useState('');
   const [popupMessage, setPopupMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState<string>();
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([]);
   const { data: history, isLoading: historyIsLoading } = useSWR<Notification[]>(
     'notifications',
     () => {
-      return axios.get<Notification[]>('/notifications').then((payload) => payload.data);
+      return axios.get<Notification[]>('/notifications').then(({ data }) => data);
     },
   );
 
-  useEffect(() => {
-    if (message) {
-      setErrorMessage(undefined);
-    }
-  }, [message]);
-
   async function sendMessage() {
+    const errors: ValidationError[] = [];
+    setValidationErrors([]);
     if (message === '') {
-      setErrorMessage(`Your message don't should be empty`);
+      errors.push({
+        field: 'message',
+        message: "Your message don't should be empty",
+      });
+    }
+    if (!userIdSelected) {
+      errors.push({
+        field: 'userIdSelected',
+        message: 'You must select a user',
+      });
+    }
+
+    if (errors.length) {
+      setValidationErrors(errors);
       return;
     }
     // Clear field
@@ -49,10 +59,12 @@ export const useNotification = () => {
         category: categorySelected,
         channel: channelSelected,
         message,
+        UserId: userIdSelected,
       })
       .then(({ data }) => {
         setIsLoading(false);
         setPopupMessage(data.message);
+        setUserIdSelected(Number(null));
         toast.custom(() => <MessageAlert>{data.message}</MessageAlert>);
       })
       .catch((payload) => {
@@ -68,22 +80,10 @@ export const useNotification = () => {
     setMessage('');
   }
 
-  // async function getHistory(): Promise<Notification[]> {
-  //   // Clear field
-
-  //   setIsLoading(true);
-  //   setErrorType('info');
-  //   // send a new message
-  //   setPopupMessage('');
-  //   const notifications = await axios.get<Notification[]>('/notifications');
-  //   return notifications.data;
-  // }
-
   return {
     isLoading,
     setIsLoading,
     errorType,
-    errorMessage,
     setErrorType,
     message,
     setMessage,
@@ -98,6 +98,10 @@ export const useNotification = () => {
     popupMessage,
     history,
     historyIsLoading,
+    userIdSelected,
+    setUserIdSelected,
+    validationErrors,
+    setValidationErrors,
   };
 };
 
