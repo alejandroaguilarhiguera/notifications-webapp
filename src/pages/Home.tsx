@@ -66,7 +66,7 @@ export const Home = (): JSX.Element => {
                       (channelSelected === channel ? activeButtonState : inactiveButtonState)
                     }
                   >
-                    {channel}
+                    {channel.replace(/([A-Z])/g, ' $1')}
                   </button>
                 ))}
               </div>
